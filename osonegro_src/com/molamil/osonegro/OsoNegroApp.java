@@ -3,7 +3,9 @@ package com.molamil.osonegro;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import org.xmlpull.v1.XmlPullParserException;
@@ -125,9 +127,13 @@ public class OsoNegroApp implements OnClickListener {
 			context.getManager().setState(AbstractStateManager.PREV_STATE_OUT);
 			currentPageContext.getManager().setState(AbstractStateManager.STATE_OUT);
 			String[] depends = currentPageContext.getDepends(); 
+			List<String> nextDepends = Arrays.asList(nextPageContext.getDepends());
 			if(depends != null) {
 				for(int i = 0; i < depends.length; i++) {
-					clearBlockWithId(depends[i]);
+					if(!nextDepends.contains(depends[i]))
+					{
+						clearBlockWithId(depends[i]);
+					}
 				}
 			}
 		} else {
@@ -255,8 +261,8 @@ public class OsoNegroApp implements OnClickListener {
 	    		} catch (NoSuchMethodException e) {
 	    			Logger.debug("No destroy method on " + currentPageContext.getMaster().getTarget());
 	    		}
-	    		
-	    		currentPageContext.getMaster().clear();
+
+	        	currentPageContext.getMaster().clear();
 	            currentPageContext = nextPageContext;
 	            currentPageContext.getManager().setState(AbstractStateManager.STATE_IN);
 
@@ -274,6 +280,12 @@ public class OsoNegroApp implements OnClickListener {
 	            
 	            if(context.getManager().getTarget() == state.getTarget()) {
 	            	curBlockIds.remove(i);
+		    		// execute destroy
+		    		try {
+		    			context.getMaster().getTarget().getClass().getMethod("destroy").invoke(context.getMaster().getTarget());
+		    		} catch (NoSuchMethodException e) {
+		    			Logger.debug("No destroy method on " + context.getMaster().getTarget());
+		    		}
 	            	context.getMaster().clear();
 	                break;
 	            }

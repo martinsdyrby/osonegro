@@ -2,6 +2,7 @@ package com.molamil.osonegro;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -31,6 +32,7 @@ import com.molamil.osonegro.manager.AbstractFragmentStateManager;
 import com.molamil.osonegro.manager.AbstractStateManager;
 import com.molamil.osonegro.manager.State;
 import com.molamil.osonegro.master.FragmentMaster;
+import com.molamil.osonegro.master.IntentMaster;
 import com.molamil.osonegro.utils.Logger;
 import com.molamil.osonegro.utils.ObjectUtil;
 
@@ -87,7 +89,7 @@ public class OsoNegroApp implements OnClickListener {
 			mInstance._activity = activity;
 			Intent intent = activity.getIntent();
 			ObjectUtil.mergePropsWithObject(intent.getExtras(), activity);
-
+/*			TODO... find proper solution for containers
 			String layoutFileName = bundle.getString("osonegro_main_layout");
 			int layoutIdentifier = activity.getResources().getIdentifier(layoutFileName != null ? layoutFileName : MAIN_LAYOUT, "layout", packageName);
 			activity.setContentView(layoutIdentifier);
@@ -102,6 +104,7 @@ public class OsoNegroApp implements OnClickListener {
 					}
 				}
 			}
+*/
 			// SET STATE ON
 			mInstance.getCurrentPageContext().getManager().setState(AbstractStateManager.STATE_ON);
 		}
@@ -173,8 +176,10 @@ public class OsoNegroApp implements OnClickListener {
 		}
 		
 		NotificationCenter.defaultCenter().postNotification(PAGE_REQUEST, context);
-		context.setContainer(resolveContainerForContext(context));
-		context.setContainerId(resolveContainerIdForContext(context));
+		if(!(context.getMaster() instanceof IntentMaster)) {
+			context.setContainer(resolveContainerForContext(context));
+			context.setContainerId(resolveContainerIdForContext(context));
+		}
 
 		if(context.getMaster() instanceof FragmentMaster && context.getManager() instanceof AbstractFragmentStateManager) {
 			FragmentMaster fMaster = (FragmentMaster) context.getMaster();

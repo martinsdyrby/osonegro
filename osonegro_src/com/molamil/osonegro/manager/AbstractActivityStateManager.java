@@ -24,6 +24,7 @@ public class AbstractActivityStateManager extends AbstractStateManager {
             intent.setExitAnimation(getExitAnimation());
         } else if(state.equals(STATE_ON)) {
         } else if(state.equals(STATE_OUT)) {
+            setState(STATE_OFF);
         } else if(state.equals(STATE_OFF)) {
         } else if(state.equals(PREV_STATE_OUT)) {
         }

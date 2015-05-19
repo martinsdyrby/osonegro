@@ -1,5 +1,8 @@
 package com.molamil.osonegro.utils;
 
+
+import android.os.Bundle;
+
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.Iterator;
@@ -10,12 +13,13 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import com.molamil.model.PostableObject;
+import com.molamil.osonegro.OsoNegroIntent;
 
 public class ObjectUtil {
 	static private Map<String,Object> propsList;
 	static private Set<String> propsKeySet;
 
-	public static void mergePropsWithObject(Object props, Object target) throws IllegalArgumentException, IllegalAccessException, InvocationTargetException {
+	public static void mergePropsWithObject(Object props, Object target) {
 		if(props == null) return;
 		if(target == null) return;
 		
@@ -40,18 +44,44 @@ public class ObjectUtil {
 			String entryKey = (String) it.next();
 			try {
 				setValueForKey(target, entryKey, props.opt(entryKey));
-			} catch (Exception e) {
+			} catch (IllegalAccessException e) {
+				Logger.error("ObjectUtil.mergePropsWithObject", e);
+			} catch (InvocationTargetException e) {
 				Logger.error("ObjectUtil.mergePropsWithObject", e);
 			}
 		}
 	}
-	public static void mergePropsWithObject(Map<String,?> props, Object target) throws IllegalArgumentException, IllegalAccessException, InvocationTargetException {
+	public static void mergePropsWithObject(Map<String,?> props, Object target) {
 		if(props == null) return;
 		if(target == null) return;
 		
 		for (String entryKey : props.keySet()) {
-			setValueForKey(target, entryKey, props.get(entryKey));
+			try {
+				setValueForKey(target, entryKey, props.get(entryKey));
+			} catch (IllegalAccessException e) {
+				Logger.error("ObjectUtil.mergePropsWithObject", e);
+			} catch (InvocationTargetException e) {
+				Logger.error("ObjectUtil.mergePropsWithObject", e);
+			}
 		}
+	}
+
+	public static void mergePropsWithObject(Bundle bundle, Object target) {
+		if(bundle == null) return;
+
+		Set<String> keys = bundle.keySet();
+		for (String key : keys) {
+			Object o = bundle.get(key);
+			try {
+				setValueForKey(target, key, o);
+			} catch (IllegalAccessException e) {
+				Logger.error("ObjectUtil.mergePropsWithObject", e);
+			} catch (InvocationTargetException e) {
+				Logger.error("ObjectUtil.mergePropsWithObject", e);
+			}
+
+		}
+
 	}
 
 	public static String fieldToSetter(String name)
@@ -73,18 +103,32 @@ public class ObjectUtil {
 	
 	
 	public static boolean setValueForKey(Object anObject, String key, Object value) throws IllegalAccessException, InvocationTargetException {
+		Class<?> cls;
+		boolean isIntent = anObject instanceof OsoNegroIntent;
+		OsoNegroIntent intent = null;
+		if(isIntent) {
+			intent = (OsoNegroIntent) anObject;
+			cls = intent.getTargetClass();
+		} else {
+			cls = anObject.getClass();
+		}
 		String setter = fieldToSetter(key);
 		value = resolveExpressions(value);
-        for (Method method : anObject.getClass().getMethods()) {
-            if (setter.equals(method.getName())) {
-            	try {
-            		method.invoke(anObject, value);
-            	} catch(IllegalArgumentException e) {
-            		Logger.error(setter + " = " + value, e);
-            	}
-    			return true;
-            }
-        }
+		for (Method method : cls.getMethods()) {
+			if (setter.equals(method.getName())) {
+				if(isIntent && intent != null) {
+					intent.putExtra(key, value);
+					return true;
+				} else {
+					try {
+						method.invoke(anObject, value);
+					} catch (IllegalArgumentException e) {
+						Logger.error(setter + " = " + value, e);
+					}
+					return true;
+				}
+			}
+		}
 		return false;
 	}
 

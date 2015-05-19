@@ -1,6 +1,5 @@
 package com.molamil.osonegro.context;
 
-import java.util.ArrayList;
 import java.util.Map;
 
 import android.view.ViewGroup;
@@ -18,14 +17,11 @@ public class BlockContext implements ViewableContext {
 	private String[] depends;
 	private String containerName;
 	private ViewGroup container;
+	private int containerId;
 	private StateManager manager;
 	private ViewMaster master;
-	public String getId() {
-		return id;
-	}
-	public void setId(String id) {
-		this.id = id;
-	}
+	public String getId() { return id; }
+	public void setId(String id) { this.id = id; }
 	public String getType() {
 		return type;
 	}
@@ -62,6 +58,8 @@ public class BlockContext implements ViewableContext {
 	public void setContainer(ViewGroup container) {
 		this.container = container;
 	}
+	public int getContainerId() { return containerId; }
+	public void setContainerId(int id) { containerId = id; }
 	public StateManager getManager() {
 		return manager;
 	}

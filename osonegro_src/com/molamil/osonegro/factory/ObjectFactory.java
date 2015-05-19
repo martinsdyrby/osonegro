@@ -1,6 +1,5 @@
 package com.molamil.osonegro.factory;
 
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
@@ -11,9 +10,15 @@ import com.molamil.osonegro.context.PageContext;
 import com.molamil.osonegro.context.ViewableContext;
 import com.molamil.osonegro.manager.StateManager;
 import com.molamil.osonegro.master.CommandMaster;
+import com.molamil.osonegro.master.FragmentMaster;
+import com.molamil.osonegro.master.IntentMaster;
 import com.molamil.osonegro.master.ViewMaster;
 
 public class ObjectFactory {
+
+	private final String FRAGMENT_MANAGER = "com.molamil.osonegro.manager.AbstractFragmentStateManager";
+	private final String VIEW_MANAGER = "com.molamil.osonegro.manager.AbstractStateManager";
+	private final String ACTIVITY_MANAGER = "com.molamil.osonegro.manager.AbstractActivityStateManager";
 
 	private Map<String,PageContext> pageContexts;
 	private Map<String,BlockContext> blockContexts;
@@ -23,6 +28,7 @@ public class ObjectFactory {
 	private Map<String,Object> commandsList;
 	private Map<String,Object> propsList;
 	private Set<String> propsKeySet;
+
 	public void initWithObjects(Map<String,Object> pages, Map<String,Object> blocks, Map<String,Object> commands, Map<String,Object> props) {
 		
 		pagesList = pages;
@@ -54,15 +60,16 @@ public class ObjectFactory {
 				Map<String, Object> parentPage = (Map<String, Object>) pagesList.get(page.get("extends"));
 				setViewContextPropertiesOnContext(parentPage, context);
 				
-				context.setManager(this.<StateManager>setContextValueWithDefault(resolveManagerWithDefault((String) parentPage.get("manager"), null), context.getManager()));
-				context.setMaster(this.<ViewMaster>setContextValueWithDefault(resolveMaster((String)parentPage.get("type")), context.getMaster()));
+				context.setMaster(this.<ViewMaster>setContextValueWithDefault(resolveMaster((String) parentPage.get("type")), context.getMaster()));
+				StateManager defaultManager = (StateManager) (context.getMaster() instanceof FragmentMaster ? Class.forName(FRAGMENT_MANAGER).newInstance() : context.getMaster() instanceof IntentMaster ? Class.forName(ACTIVITY_MANAGER).newInstance(): Class.forName(VIEW_MANAGER).newInstance());
+				context.setManager(this.<StateManager>setContextValueWithDefault(resolveManagerWithDefault((String) parentPage.get("manager"), defaultManager), context.getManager()));
 			}
 			
 			
 			context.setId(pageId);
 			setViewContextPropertiesOnContext(page, context);
+			context.setMaster(this.<ViewMaster>setContextValueWithDefault(resolveMaster((String) page.get("type")), context.getMaster()));
 			context.setManager(this.<StateManager>setContextValueWithDefault(resolveManagerWithDefault((String) page.get("manager"), context.getManager()), context.getManager()));
-			context.setMaster(this.<ViewMaster>setContextValueWithDefault(resolveMaster((String)page.get("type")), context.getMaster()));
 			context.getMaster().setContext(context);
 			
 			pageContexts.put(pageId, context);
@@ -114,15 +121,16 @@ public class ObjectFactory {
 				
 				setViewContextPropertiesOnContext(parentBlock, context);
 				
-				context.setManager(this.<StateManager>setContextValueWithDefault(resolveManagerWithDefault((String) parentBlock.get("manager"), null), context.getManager()));
-				context.setMaster(this.<ViewMaster>setContextValueWithDefault(resolveMaster((String)parentBlock.get("type")), context.getMaster()));
+				context.setMaster(this.<ViewMaster>setContextValueWithDefault(resolveMaster((String) parentBlock.get("type")), context.getMaster()));
+				StateManager defaultManager = (StateManager) (context.getMaster() instanceof FragmentMaster ? Class.forName(FRAGMENT_MANAGER).newInstance() : context.getMaster() instanceof IntentMaster ? Class.forName(ACTIVITY_MANAGER).newInstance(): Class.forName(VIEW_MANAGER).newInstance());
+				context.setManager(this.<StateManager>setContextValueWithDefault(resolveManagerWithDefault((String) parentBlock.get("manager"), defaultManager), context.getManager()));
 			}
 			
 			
 			context.setId(blockId);
 			setViewContextPropertiesOnContext(block, context);
+			context.setMaster(this.<ViewMaster>setContextValueWithDefault(resolveMaster((String) block.get("type")), context.getMaster()));
 			context.setManager(this.<StateManager>setContextValueWithDefault(resolveManagerWithDefault((String) block.get("manager"), context.getManager()), context.getManager()));
-			context.setMaster(this.<ViewMaster>setContextValueWithDefault(resolveMaster((String)block.get("type")), context.getMaster()));
 			context.getMaster().setContext(context);
 			
 			blockContexts.put(blockId, context);
@@ -165,7 +173,7 @@ public class ObjectFactory {
 
 		if(managerName == null) {
 	        if(defaultManager == null) {
-	            managerName = "com.molamil.osonegro.manager.SimpleStateManager";
+	            managerName = "com.molamil.osonegro.manager.AbstractStateManager";
 	        } else {
 	            return defaultManager;
 	        }
@@ -192,11 +200,15 @@ public class ObjectFactory {
 	
 	private ViewMaster resolveMaster(String masterName) throws ClassNotFoundException, InstantiationException, IllegalAccessException {
 		if(masterName == null) return null;
-	    if(masterName.equals("Definition")) {
+	    if(masterName.toLowerCase().equals("definition")) {
 	        masterName = "com.molamil.osonegro.master.Definition";
-	    } else if(masterName.equals("Layout")) {
+	    } else if(masterName.toLowerCase().equals("layout")) {
 	    	masterName = "com.molamil.osonegro.master.Layout";
-	    }
+	    } else if(masterName.toLowerCase().equals("intent")) {
+			masterName = "com.molamil.osonegro.master.IntentMaster";
+		} else if(masterName.toLowerCase().equals("fragment")) {
+			masterName = "com.molamil.osonegro.master.FragmentMaster";
+		}
 	    ViewMaster master = null;
 
     	Class masterClass = Class.forName(masterName);

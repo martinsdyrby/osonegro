@@ -11,22 +11,33 @@ import java.util.Map;
 import org.xmlpull.v1.XmlPullParserException;
 
 import android.app.Activity;
+import android.content.Intent;
+import android.content.pm.ApplicationInfo;
+import android.content.pm.PackageManager;
+import android.graphics.LinearGradient;
+import android.os.Bundle;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.ViewGroup;
+import android.widget.FrameLayout;
+import android.widget.TextView;
 
 import com.molamil.osonegro.context.BlockContext;
 import com.molamil.osonegro.context.CommandContext;
 import com.molamil.osonegro.context.PageContext;
 import com.molamil.osonegro.context.ViewableContext;
 import com.molamil.osonegro.factory.ObjectFactory;
+import com.molamil.osonegro.manager.AbstractFragmentStateManager;
 import com.molamil.osonegro.manager.AbstractStateManager;
 import com.molamil.osonegro.manager.State;
+import com.molamil.osonegro.master.FragmentMaster;
 import com.molamil.osonegro.utils.Logger;
 import com.molamil.osonegro.utils.ObjectUtil;
 
 public class OsoNegroApp implements OnClickListener {
-	
+	private static final String CONFIG_NAME = "osonegro";
+	private static final String MAIN_LAYOUT = "main";
+	private static final String STARTUP_EVENT = "startup";
 	public static final String STATE_CHANGE = "stateChange";
 	public static final String PAGE_REQUEST = "pageRequest";
 	
@@ -56,7 +67,48 @@ public class OsoNegroApp implements OnClickListener {
 	static public Activity getAndroidActivity() {
 		return _activity;
 	}
-	
+	private static OsoNegroApp mInstance = null;
+
+	public static OsoNegroApp getInstance(Activity activity) throws PackageManager.NameNotFoundException, IOException, XmlPullParserException {
+		ApplicationInfo ai = activity.getPackageManager().getApplicationInfo(activity.getPackageName(), PackageManager.GET_META_DATA);
+		Bundle bundle = ai.metaData;
+		String packageName = activity.getPackageName();
+
+		if(mInstance == null) {
+			mInstance = new OsoNegroApp(activity);
+			String configName = bundle.getString("osonegro_config_file");
+
+			int configResource = activity.getResources().getIdentifier(configName != null ? configName : CONFIG_NAME, "raw", packageName);
+			InputStream configuration = activity.getResources().openRawResource(configResource);
+			mInstance.init(configuration);
+			String startEvent = bundle.getString("osonegro_start_event");
+			NotificationCenter.defaultCenter().postNotification(startEvent != null ? startEvent : STARTUP_EVENT);
+		} else {
+			mInstance._activity = activity;
+			Intent intent = activity.getIntent();
+			ObjectUtil.mergePropsWithObject(intent.getExtras(), activity);
+
+			String layoutFileName = bundle.getString("osonegro_main_layout");
+			int layoutIdentifier = activity.getResources().getIdentifier(layoutFileName != null ? layoutFileName : MAIN_LAYOUT, "layout", packageName);
+			activity.setContentView(layoutIdentifier);
+
+			ViewGroup grp = (ViewGroup) activity.findViewById(android.R.id.content);
+			for(int i = 0; i < grp.getChildCount(); i++) {
+				ViewGroup grp1 = (ViewGroup) grp.getChildAt(i);
+				for(int j = 0; j< grp1.getChildCount(); j++) {
+					View container = grp1.getChildAt(j);
+					if(container instanceof ViewGroup) {
+						mInstance.addContainerWithName((ViewGroup) container, Integer.toString(container.getId()), false);
+					}
+				}
+			}
+			// SET STATE ON
+			mInstance.getCurrentPageContext().getManager().setState(AbstractStateManager.STATE_ON);
+		}
+
+		return mInstance;
+	}
+
 	public Object getProp(String key) {
 		return props.get(key);
 	}
@@ -65,7 +117,11 @@ public class OsoNegroApp implements OnClickListener {
 		this.rootView = rootView;
 		_activity = activity;
 	}
-	
+
+	private OsoNegroApp(Activity activity) {
+		_activity = activity;
+	}
+
 	public void pause() {
 
 	}
@@ -118,16 +174,35 @@ public class OsoNegroApp implements OnClickListener {
 		
 		NotificationCenter.defaultCenter().postNotification(PAGE_REQUEST, context);
 		context.setContainer(resolveContainerForContext(context));
-		
+		context.setContainerId(resolveContainerIdForContext(context));
+
+		if(context.getMaster() instanceof FragmentMaster && context.getManager() instanceof AbstractFragmentStateManager) {
+			FragmentMaster fMaster = (FragmentMaster) context.getMaster();
+			AbstractFragmentStateManager fManager = (AbstractFragmentStateManager) context.getManager();
+			fMaster.setEnterAnimation(fManager.getPreviousOutAnimation() > 0 ? fManager.getPreviousOutAnimation() : fManager.getInAnimation());
+		}
 		context.getMaster().display();
 		ObjectUtil.mergePropsWithObject(data, context.getMaster().getTarget());
 		
 		if(currentPageContext != null) {
 			nextPageContext = context;
 			context.getManager().setState(AbstractStateManager.PREV_STATE_OUT);
-			currentPageContext.getManager().setState(AbstractStateManager.STATE_OUT);
-			String[] depends = currentPageContext.getDepends(); 
-			List<String> nextDepends = Arrays.asList(nextPageContext.getDepends());
+
+			if(currentPageContext.getMaster() instanceof FragmentMaster && currentPageContext.getManager() instanceof AbstractFragmentStateManager) {
+				FragmentMaster fMaster = (FragmentMaster) currentPageContext.getMaster();
+				AbstractFragmentStateManager fManager = (AbstractFragmentStateManager) currentPageContext.getManager();
+				fMaster.setExitAnimation(fManager.getOutAnimation());
+			}
+			String[] depends = currentPageContext.getDepends();
+			List<String> nextDepends;
+			if(nextPageContext.getDepends() == null)
+			{
+				nextDepends = new ArrayList<String>();
+			}
+			else
+			{
+				nextDepends = Arrays.asList(nextPageContext.getDepends());
+			}
 			if(depends != null) {
 				for(int i = 0; i < depends.length; i++) {
 					if(!nextDepends.contains(depends[i]))
@@ -136,6 +211,7 @@ public class OsoNegroApp implements OnClickListener {
 					}
 				}
 			}
+			currentPageContext.getManager().setState(AbstractStateManager.STATE_OUT);
 		} else {
 			context.getManager().setState(AbstractStateManager.STATE_IN);
 			currentPageContext = context;
@@ -169,7 +245,7 @@ public class OsoNegroApp implements OnClickListener {
     
 
 		if(context == null) {
-			Logger.error("Block context for "+blockId+" is not found");
+			Logger.error("Block context for " + blockId + " is not found");
 			return context;
 		}
 
@@ -182,10 +258,14 @@ public class OsoNegroApp implements OnClickListener {
     
 		curBlockIds.add(blockId);
 
-    
 		context.setContainer(resolveContainerForContext(context));
-    
-		// display page
+		context.setContainerId(resolveContainerIdForContext(context));
+
+		if(context.getMaster() instanceof FragmentMaster && context.getManager() instanceof AbstractFragmentStateManager) {
+			FragmentMaster fMaster = (FragmentMaster) context.getMaster();
+			AbstractFragmentStateManager fManager = (AbstractFragmentStateManager) context.getManager();
+			fMaster.setEnterAnimation(fManager.getPreviousOutAnimation() > 0 ? fManager.getPreviousOutAnimation() : fManager.getInAnimation());
+		}
 		context.getMaster().display();
 
 		ObjectUtil.mergePropsWithObject(data, context.getMaster().getTarget());
@@ -209,6 +289,11 @@ public class OsoNegroApp implements OnClickListener {
 	    BlockContext context = factory.getBlockContextWithId(blockId);
 	    int index = curBlockIds.indexOf(blockId);
 	    if(index > -1) {
+			if(context.getMaster() instanceof FragmentMaster && context.getManager() instanceof AbstractFragmentStateManager) {
+				FragmentMaster fMaster = (FragmentMaster) context.getMaster();
+				AbstractFragmentStateManager fManager = (AbstractFragmentStateManager) context.getManager();
+				fMaster.setExitAnimation(fManager.getOutAnimation());
+			}
 	    	context.getManager().setState(AbstractStateManager.STATE_OUT);
 	    } else {
 	    	Logger.debug("Block with id " + blockId + " not found for clearing.");
@@ -349,7 +434,10 @@ public class OsoNegroApp implements OnClickListener {
 	    
 	    return container;
 	}
-	
+
+	private int resolveContainerIdForContext(ViewableContext context) {
+		return getAndroidActivity().getResources().getIdentifier(context.getContainerName(), "id", getAndroidActivity().getPackageName());
+	}
 	
 	private void callIdWithData(String callId, Object data) throws Exception {
 		

@@ -42,9 +42,16 @@ public class NotificationCenter {
 		if(obs == null) {
 			return;
 		}
+		for(int i = 0; i < obs.size(); i++) {
+			NotificationHandler h = obs.get(i);
+			if(h.getTarget().equals(target)) {
+				obs.remove(i);
+				break;
+			}
+		}
 		obs.remove(target);
 	} 
-	
+
 	public Notification addPageBackAction(String aName, String section) {
 	    NavigationItem navItem = NavigationItem.navigationItem(aName, null);
 	    NavigationItemData data = NavigationItemData.navigationItemData(navItem, section);
@@ -58,7 +65,7 @@ public class NotificationCenter {
 	    postNotification("addBackAction", data);
 	    return Notification.notificationWithName(aName, anObject);
 	}
-	
+
 	public void postNotification(String type) {
 		postNotification(type, null);
 	}

@@ -2,6 +2,7 @@ package com.molamil.osonegro.manager;
 
 import com.molamil.osonegro.NotificationCenter;
 import com.molamil.osonegro.OsoNegroApp;
+import com.molamil.osonegro.OsoNegroIntent;
 import com.molamil.osonegro.utils.Logger;
 
 public class AbstractStateManager implements StateManager {
@@ -12,8 +13,8 @@ public class AbstractStateManager implements StateManager {
 	public final static String STATE_OFF = "STATE_OFF";
 	public final static String PREV_STATE_OUT = "PREV_STATE_OUT";
 	public final static String PREV_STATE_OFF = "PREV_STATE_OFF";
-	private Object target;
-	private String state;
+	protected Object target;
+	protected String state;
 
 	public Object getTarget() {
 		return target;
@@ -47,9 +48,9 @@ public class AbstractStateManager implements StateManager {
 	}
 	
 	
-	private void changeState() {
+	protected void changeState() {
 		if(target == null) return;
-		
+
 		State newState = new State();
 		newState.setState(state);
 		newState.setTarget(target);
@@ -66,7 +67,7 @@ public class AbstractStateManager implements StateManager {
 		} else if(state.equals(STATE_OFF)) {
 			doOff();
 		} else if(state.equals(PREV_STATE_OUT)) {
-			doPreviouesOut();
+			doPreviousOut();
 		}
 	}
 	
@@ -77,7 +78,8 @@ public class AbstractStateManager implements StateManager {
 	public void doOff() {}
 	public void doOut() {}
 	public void doIn() {}
-	public void doPreviouesOut(){}
+	public void doPreviousOut(){}
+
 }
 
 

@@ -16,6 +16,7 @@ public class PageContext implements ViewableContext {
 	private String[] depends;
 	private String containerName;
 	private ViewGroup container;
+	private int containerId;
 	private StateManager manager;
 	private ViewMaster master;
 	public String getId() {
@@ -59,6 +60,12 @@ public class PageContext implements ViewableContext {
 	}
 	public void setContainer(ViewGroup container) {
 		this.container = container;
+	}
+	public int getContainerId() {
+		return containerId;
+	}
+	public void setContainerId(int id) {
+		containerId = id;
 	}
 	public StateManager getManager() {
 		return manager;

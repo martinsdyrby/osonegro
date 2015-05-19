@@ -29,6 +29,7 @@ public class AbstractMaster implements ViewMaster {
 
 
 	public void clear() {
+
 		doClear();
 	}
 

@@ -14,7 +14,9 @@ public interface ViewableContext extends Context {
 	public String getContainerName();
 	public void setContainerName(String containerName);	
 	public ViewGroup getContainer();
-	public void setContainer(ViewGroup container);	
+	public void setContainer(ViewGroup container);
+	public int getContainerId();
+	public void setContainerId(int id);
 	public StateManager getManager();
 	public void setManager(StateManager manager);	
 	

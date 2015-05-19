@@ -12,9 +12,9 @@ public class Layout extends AbstractMaster {
 
 	private static Map<String,View> instances;
 	private View view;
-	
+
 	public void doDisplay() {
-		
+
 		//view = getContextInstanceFromId(this.getContext().getId());
 		if(view == null) {
 			String type = getContext().getType();
@@ -27,7 +27,7 @@ public class Layout extends AbstractMaster {
 					packageName += ".";
 				}
 			}
-			
+
 			int resourceID = OsoNegroApp.getAndroidActivity().getResources().getIdentifier(layoutName, "layout", packageName);
 			view = OsoNegroApp.getAndroidActivity().getLayoutInflater().inflate(resourceID, null);
 			addContextInstanceForId(view, getContext().getId());

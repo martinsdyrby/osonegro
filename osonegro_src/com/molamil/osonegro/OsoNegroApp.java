@@ -181,11 +181,11 @@ public class OsoNegroApp implements OnClickListener {
 			context.setContainerId(resolveContainerIdForContext(context));
 		}
 
-		if(context.getMaster() instanceof FragmentMaster && context.getManager() instanceof AbstractFragmentStateManager) {
+		/*if(context.getMaster() instanceof FragmentMaster && context.getManager() instanceof AbstractFragmentStateManager) {
 			FragmentMaster fMaster = (FragmentMaster) context.getMaster();
 			AbstractFragmentStateManager fManager = (AbstractFragmentStateManager) context.getManager();
 			fMaster.setEnterAnimation(fManager.getPreviousOutAnimation() > 0 ? fManager.getPreviousOutAnimation() : fManager.getInAnimation());
-		}
+		}*/
 		context.getMaster().display();
 		ObjectUtil.mergePropsWithObject(data, context.getMaster().getTarget());
 		
@@ -193,11 +193,11 @@ public class OsoNegroApp implements OnClickListener {
 			nextPageContext = context;
 			context.getManager().setState(AbstractStateManager.PREV_STATE_OUT);
 
-			if(currentPageContext.getMaster() instanceof FragmentMaster && currentPageContext.getManager() instanceof AbstractFragmentStateManager) {
+			/*if(currentPageContext.getMaster() instanceof FragmentMaster && currentPageContext.getManager() instanceof AbstractFragmentStateManager) {
 				FragmentMaster fMaster = (FragmentMaster) currentPageContext.getMaster();
 				AbstractFragmentStateManager fManager = (AbstractFragmentStateManager) currentPageContext.getManager();
 				fMaster.setExitAnimation(fManager.getOutAnimation());
-			}
+			}*/
 			String[] depends = currentPageContext.getDepends();
 			List<String> nextDepends;
 			if(nextPageContext.getDepends() == null)
@@ -266,11 +266,11 @@ public class OsoNegroApp implements OnClickListener {
 		context.setContainer(resolveContainerForContext(context));
 		context.setContainerId(resolveContainerIdForContext(context));
 
-		if(context.getMaster() instanceof FragmentMaster && context.getManager() instanceof AbstractFragmentStateManager) {
+		/*if(context.getMaster() instanceof FragmentMaster && context.getManager() instanceof AbstractFragmentStateManager) {
 			FragmentMaster fMaster = (FragmentMaster) context.getMaster();
 			AbstractFragmentStateManager fManager = (AbstractFragmentStateManager) context.getManager();
 			fMaster.setEnterAnimation(fManager.getPreviousOutAnimation() > 0 ? fManager.getPreviousOutAnimation() : fManager.getInAnimation());
-		}
+		}*/
 		context.getMaster().display();
 
 		ObjectUtil.mergePropsWithObject(data, context.getMaster().getTarget());
@@ -294,11 +294,11 @@ public class OsoNegroApp implements OnClickListener {
 	    BlockContext context = factory.getBlockContextWithId(blockId);
 	    int index = curBlockIds.indexOf(blockId);
 	    if(index > -1) {
-			if(context.getMaster() instanceof FragmentMaster && context.getManager() instanceof AbstractFragmentStateManager) {
+			/*if(context.getMaster() instanceof FragmentMaster && context.getManager() instanceof AbstractFragmentStateManager) {
 				FragmentMaster fMaster = (FragmentMaster) context.getMaster();
 				AbstractFragmentStateManager fManager = (AbstractFragmentStateManager) context.getManager();
 				fMaster.setExitAnimation(fManager.getOutAnimation());
-			}
+			}*/
 	    	context.getManager().setState(AbstractStateManager.STATE_OUT);
 	    } else {
 	    	Logger.debug("Block with id " + blockId + " not found for clearing.");

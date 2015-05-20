@@ -1,37 +1,53 @@
 package com.molamil.osonegro.manager;
 
+import android.app.Fragment;
+import android.app.FragmentManager;
 import android.app.FragmentTransaction;
+import android.view.View;
 
 import com.molamil.osonegro.NotificationCenter;
 import com.molamil.osonegro.OsoNegroApp;
 import com.molamil.osonegro.OsoNegroIntent;
 
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
+
 /**
  * Created by martinschiothdyrby on 09/05/15.
  */
 public class AbstractFragmentStateManager extends AbstractStateManager {
-
-    protected void changeState() {
-        if(target == null) return;
-
-        State newState = new State();
-        newState.setState(state);
-        newState.setTarget(target);
-
-        NotificationCenter.defaultCenter().postNotification(OsoNegroApp.STATE_CHANGE, newState);
-        newState = null;
-
-        if(state.equals(STATE_IN)) {
-            setState(STATE_ON);
-        } else if(state.equals(STATE_ON)) {
-        } else if(state.equals(STATE_OUT)) {
-            setState(STATE_OFF);
-        } else if(state.equals(STATE_OFF)) {
-        } else if (state.equals(PREV_STATE_OUT)) {
+    private static final ScheduledExecutorService worker = Executors.newSingleThreadScheduledExecutor();
+    public View getView() {
+        if(target instanceof Fragment) {
+            return (View)((Fragment) target).getView();
         }
+        return (View)target;
     }
 
-    public int getInAnimation() { return 0; }
-    public int getPreviousOutAnimation() { return 0; }
-    public int getOutAnimation() { return 0; }
+    public Fragment getFragment() {
+        return (Fragment) target;
+    }
+
+    protected void changeState() {
+        if(getFragment() != null && getView() == null) {
+            Runnable task = new Runnable() {
+                public void run() {
+                    /* Do something… */
+                    changeState();
+                }
+            };
+            worker.schedule(task, 100, TimeUnit.MILLISECONDS);
+            return;
+        }
+        super.changeState();
+    }
+
+    protected void showFragment() {
+        FragmentManager fragmentManager = OsoNegroApp.getAndroidActivity().getFragmentManager();
+        FragmentTransaction transaction = fragmentManager.beginTransaction();
+        transaction.show(getFragment());
+        transaction.commit();
+        fragmentManager.executePendingTransactions();
+    }
 }

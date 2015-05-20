@@ -42,15 +42,16 @@ public class FragmentMaster extends AbstractMaster {
         setTarget(fragment);
         FragmentManager fragmentManager = OsoNegroApp.getAndroidActivity().getFragmentManager();
         FragmentTransaction transaction = fragmentManager.beginTransaction();
-        if(enterAnimation != 0) transaction.setCustomAnimations(enterAnimation, 0);
         transaction.add(getContext().getContainerId(), fragment);
+        transaction.hide(fragment);
+        //transaction.addToBackStack(this.getContext().getId());
         transaction.commit();
+
     }
 
     public void doClear() {
         FragmentManager fragmentManager = OsoNegroApp.getAndroidActivity().getFragmentManager();
         FragmentTransaction transaction = fragmentManager.beginTransaction();
-        if(exitAnimation != 0) transaction.setCustomAnimations(0, exitAnimation);
         transaction.remove(fragment);
         transaction.commit();
         fragment = null;

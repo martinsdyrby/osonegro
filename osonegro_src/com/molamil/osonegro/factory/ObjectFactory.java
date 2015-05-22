@@ -13,6 +13,7 @@ import com.molamil.osonegro.master.CommandMaster;
 import com.molamil.osonegro.master.FragmentMaster;
 import com.molamil.osonegro.master.IntentMaster;
 import com.molamil.osonegro.master.ViewMaster;
+import com.molamil.osonegro.utils.ObjectUtil;
 
 public class ObjectFactory {
 
@@ -36,6 +37,9 @@ public class ObjectFactory {
 		commandsList = commands;
 		propsList = props;
 		propsKeySet = propsList.keySet();
+
+		ObjectUtil.setPropsList(propsList);
+		ObjectUtil.setPropsKeySet(propsKeySet);
 		
 		pageContexts = new HashMap<String, PageContext>();
 		blockContexts = new HashMap<String, BlockContext>();

@@ -86,10 +86,11 @@ public class OsoNegroApp implements OnClickListener {
 			String startEvent = bundle.getString("osonegro_start_event");
 			NotificationCenter.defaultCenter().postNotification(startEvent != null ? startEvent : STARTUP_EVENT);
 		} else {
+/*			TODO... find proper solution for activity based apps
 			mInstance._activity = activity;
 			Intent intent = activity.getIntent();
 			ObjectUtil.mergePropsWithObject(intent.getExtras(), activity);
-/*			TODO... find proper solution for containers
+
 			String layoutFileName = bundle.getString("osonegro_main_layout");
 			int layoutIdentifier = activity.getResources().getIdentifier(layoutFileName != null ? layoutFileName : MAIN_LAYOUT, "layout", packageName);
 			activity.setContentView(layoutIdentifier);
@@ -104,9 +105,10 @@ public class OsoNegroApp implements OnClickListener {
 					}
 				}
 			}
-*/
+
 			// SET STATE ON
 			mInstance.getCurrentPageContext().getManager().setState(AbstractStateManager.STATE_ON);
+*/
 		}
 
 		return mInstance;
@@ -191,6 +193,7 @@ public class OsoNegroApp implements OnClickListener {
 		
 		if(currentPageContext != null) {
 			nextPageContext = context;
+            Logger.debug("OsoNegroApp new context set state " + AbstractStateManager.PREV_STATE_OUT);
 			context.getManager().setState(AbstractStateManager.PREV_STATE_OUT);
 
 			/*if(currentPageContext.getMaster() instanceof FragmentMaster && currentPageContext.getManager() instanceof AbstractFragmentStateManager) {
@@ -216,6 +219,7 @@ public class OsoNegroApp implements OnClickListener {
 					}
 				}
 			}
+            Logger.debug("OsoNegroApp old context set state " + AbstractStateManager.STATE_OUT);
 			currentPageContext.getManager().setState(AbstractStateManager.STATE_OUT);
 		} else {
 			context.getManager().setState(AbstractStateManager.STATE_IN);
@@ -354,6 +358,7 @@ public class OsoNegroApp implements OnClickListener {
 
 	        	currentPageContext.getMaster().clear();
 	            currentPageContext = nextPageContext;
+                Logger.debug("OsoNegroApp new context set state " + AbstractStateManager.STATE_IN);
 	            currentPageContext.getManager().setState(AbstractStateManager.STATE_IN);
 
 	            // execute setup

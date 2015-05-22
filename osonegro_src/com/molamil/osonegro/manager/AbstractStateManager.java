@@ -49,6 +49,7 @@ public class AbstractStateManager implements StateManager {
 	
 	
 	protected void changeState() {
+		Logger.debug("AbstractStateManager.changeState: " + getState());
 		if(target == null) return;
 
 		State newState = new State();

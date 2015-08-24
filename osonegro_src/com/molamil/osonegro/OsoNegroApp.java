@@ -71,6 +71,11 @@ public class OsoNegroApp implements OnClickListener {
 	}
 	private static OsoNegroApp mInstance = null;
 
+	private ArrayList<Map<String, Object>> pageHistory;
+
+	public static OsoNegroApp getInstance() {
+		return mInstance;
+	}
 	public static OsoNegroApp getInstance(Activity activity) throws PackageManager.NameNotFoundException, IOException, XmlPullParserException {
 		ApplicationInfo ai = activity.getPackageManager().getApplicationInfo(activity.getPackageName(), PackageManager.GET_META_DATA);
 		Bundle bundle = ai.metaData;
@@ -125,6 +130,7 @@ public class OsoNegroApp implements OnClickListener {
 
 	private OsoNegroApp(Activity activity) {
 		_activity = activity;
+		pageHistory = new ArrayList<>();
 	}
 
 	public void pause() {
@@ -157,9 +163,22 @@ public class OsoNegroApp implements OnClickListener {
 	    NotificationCenter.defaultCenter().addObserver(this, "stateChange", STATE_CHANGE);
 	}
 	
-	
+	public void gotoPreviousPage() throws Exception {
+		if(pageHistory.size() > 1) {
+			pageHistory.remove(pageHistory.size()-1); // remove current
+			Map<String, Object> historyEntry = pageHistory.remove(pageHistory.size()-1); // remove previous
+			gotoPageWithIdAndData((String) historyEntry.get("pageId"), historyEntry.get("data"), (PageContext) historyEntry.get("pcontext"));
+		}
+	}
+
 	public PageContext gotoPageWithIdAndData(String pageId, Object data, PageContext pcontext) throws Exception {
-		
+
+		Map<String, Object> historyEntry = new HashMap<>();
+		historyEntry.put("pageId", pageId);
+		historyEntry.put("data", data);
+		historyEntry.put("pcontext", pcontext);
+		pageHistory.add(historyEntry);
+
 		PageContext context = pcontext != null ? pcontext : factory.getPageContextWithId(pageId);
 		
 		if(context == null) {
@@ -247,7 +266,7 @@ public class OsoNegroApp implements OnClickListener {
 
 	public BlockContext displayBlockWithIdAndData(String blockId, Object data, BlockContext bcontext) throws Exception {
     
-		Logger.debug("displayBlockWithId: "+blockId);
+		Logger.debug("displayBlockWithId: " + blockId);
     
 		// Look up the page context.
 		BlockContext context = bcontext != null ? bcontext : factory.getBlockContextWithId(blockId);
@@ -546,5 +565,10 @@ public class OsoNegroApp implements OnClickListener {
 	public void onClick(View arg0) {
 		// TODO Auto-generated method stub
 		
+	}
+
+	public static void onStop() {
+		mInstance = null;
+		NotificationCenter.destroy();
 	}
 }

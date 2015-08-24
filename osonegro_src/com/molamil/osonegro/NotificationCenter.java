@@ -23,7 +23,10 @@ public class NotificationCenter {
 		}
 		return _defaultCenter;
 	}
-	
+
+	public static void destroy() {
+		_defaultCenter = null;
+	}
 	public NotificationCenter() {
 		_observers = new HashMap<String, ArrayList<NotificationHandler>>();
 	}

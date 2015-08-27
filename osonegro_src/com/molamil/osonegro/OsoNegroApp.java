@@ -77,6 +77,9 @@ public class OsoNegroApp implements OnClickListener {
 		return mInstance;
 	}
 	public static OsoNegroApp getInstance(Activity activity) throws PackageManager.NameNotFoundException, IOException, XmlPullParserException {
+		if(_activity != activity) {
+			onStop();
+		}
 		ApplicationInfo ai = activity.getPackageManager().getApplicationInfo(activity.getPackageName(), PackageManager.GET_META_DATA);
 		Bundle bundle = ai.metaData;
 		String packageName = activity.getPackageName();
@@ -115,7 +118,6 @@ public class OsoNegroApp implements OnClickListener {
 			mInstance.getCurrentPageContext().getManager().setState(AbstractStateManager.STATE_ON);
 */
 		}
-
 		return mInstance;
 	}
 

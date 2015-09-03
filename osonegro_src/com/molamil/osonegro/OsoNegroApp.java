@@ -117,11 +117,20 @@ public class OsoNegroApp implements OnClickListener {
 */
 		}
 
-		String startEvent = bundle.getString("osonegro_start_event");
-		NotificationCenter.defaultCenter().postNotification(startEvent != null ? startEvent : STARTUP_EVENT);
+
 		return mInstance;
 	}
 
+	public void start() throws PackageManager.NameNotFoundException {
+		ApplicationInfo ai = _activity.getPackageManager().getApplicationInfo(_activity.getPackageName(), PackageManager.GET_META_DATA);
+		Bundle bundle = ai.metaData;
+		String startEvent = bundle.getString("osonegro_start_event");
+		NotificationCenter.defaultCenter().postNotification(startEvent != null ? startEvent : STARTUP_EVENT);
+	}
+
+	public void setProp(String key, Object value) {
+		props.put(key, value);
+	}
 	public Object getProp(String key) {
 		return props.get(key);
 	}

@@ -48,7 +48,6 @@ public class FragmentMaster extends AbstractMaster {
         }
         transaction.add(getContext().getContainerId(), fragment);
         transaction.hide(fragment);
-        //transaction.addToBackStack(this.getContext().getId());
         transaction.commit();
         fragmentManager.executePendingTransactions();
     }

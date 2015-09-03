@@ -6,6 +6,7 @@ import android.app.FragmentTransaction;
 import android.view.View;
 
 import com.molamil.osonegro.OsoNegroApp;
+import com.molamil.osonegro.manager.AbstractStateManager;
 import com.molamil.osonegro.utils.Logger;
 
 import java.util.HashMap;
@@ -23,7 +24,7 @@ public class FragmentMaster extends AbstractMaster {
     private int exitAnimation = 0;
 
     public void doDisplay() {
-        fragment = getContextInstanceFromId(this.getContext().getId());
+        //fragment = getContextInstanceFromId(this.getContext().getId());
         if(fragment == null) {
 
             String type = getContext().getType();
@@ -42,11 +43,14 @@ public class FragmentMaster extends AbstractMaster {
         setTarget(fragment);
         FragmentManager fragmentManager = OsoNegroApp.getAndroidActivity().getFragmentManager();
         FragmentTransaction transaction = fragmentManager.beginTransaction();
+        if(fragment.isAdded()) {
+            transaction.remove(fragment);
+        }
         transaction.add(getContext().getContainerId(), fragment);
         transaction.hide(fragment);
         //transaction.addToBackStack(this.getContext().getId());
         transaction.commit();
-
+        fragmentManager.executePendingTransactions();
     }
 
     public void doClear() {

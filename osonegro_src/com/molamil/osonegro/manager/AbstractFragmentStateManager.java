@@ -4,6 +4,7 @@ import android.app.Fragment;
 import android.app.FragmentManager;
 import android.app.FragmentTransaction;
 import android.os.Handler;
+import android.util.Log;
 import android.view.View;
 
 import com.molamil.osonegro.NotificationCenter;
@@ -67,10 +68,18 @@ public class AbstractFragmentStateManager extends AbstractStateManager {
     }
 
     protected void showFragment() {
+        if(getFragment().isVisible()) {
+            return;
+//            transaction.remove(fragment);
+        }
         FragmentManager fragmentManager = OsoNegroApp.getAndroidActivity().getFragmentManager();
         FragmentTransaction transaction = fragmentManager.beginTransaction();
         transaction.show(getFragment());
         transaction.commit();
         fragmentManager.executePendingTransactions();
+
+        float x = getFragment().getView().getX();
+        float y = getFragment().getView().getY();
+        Log.d("TESt", "x: " + x + " y: + " + y);
     }
 }

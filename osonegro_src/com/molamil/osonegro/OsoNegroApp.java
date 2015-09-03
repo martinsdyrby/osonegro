@@ -77,9 +77,9 @@ public class OsoNegroApp implements OnClickListener {
 		return mInstance;
 	}
 	public static OsoNegroApp getInstance(Activity activity) throws PackageManager.NameNotFoundException, IOException, XmlPullParserException {
-		if(_activity != activity) {
+/*		if(_activity != activity) {
 			onStop();
-		}
+		}*/
 		ApplicationInfo ai = activity.getPackageManager().getApplicationInfo(activity.getPackageName(), PackageManager.GET_META_DATA);
 		Bundle bundle = ai.metaData;
 		String packageName = activity.getPackageName();
@@ -91,8 +91,6 @@ public class OsoNegroApp implements OnClickListener {
 			int configResource = activity.getResources().getIdentifier(configName != null ? configName : CONFIG_NAME, "raw", packageName);
 			InputStream configuration = activity.getResources().openRawResource(configResource);
 			mInstance.init(configuration);
-			String startEvent = bundle.getString("osonegro_start_event");
-			NotificationCenter.defaultCenter().postNotification(startEvent != null ? startEvent : STARTUP_EVENT);
 		} else {
 /*			TODO... find proper solution for activity based apps
 			mInstance._activity = activity;
@@ -118,6 +116,9 @@ public class OsoNegroApp implements OnClickListener {
 			mInstance.getCurrentPageContext().getManager().setState(AbstractStateManager.STATE_ON);
 */
 		}
+
+		String startEvent = bundle.getString("osonegro_start_event");
+		NotificationCenter.defaultCenter().postNotification(startEvent != null ? startEvent : STARTUP_EVENT);
 		return mInstance;
 	}
 
@@ -570,7 +571,9 @@ public class OsoNegroApp implements OnClickListener {
 	}
 
 	public static void onStop() {
+		//mInstance.getCurrentPageContext().getManager().setState(AbstractStateManager.STATE_OUT);
 		mInstance = null;
+
 		NotificationCenter.destroy();
 	}
 }

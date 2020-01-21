@@ -2,7 +2,7 @@ package com.molamil.osonegro;
 
 import android.content.pm.PackageManager;
 import android.os.Bundle;
-import android.support.v4.app.FragmentActivity;
+import androidx.fragment.app.FragmentActivity;
 
 import com.molamil.osonegro.utils.Logger;
 

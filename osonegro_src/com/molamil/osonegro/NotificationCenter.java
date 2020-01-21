@@ -93,7 +93,6 @@ public class NotificationCenter {
 				Class[] paramType;
 				paramType = new Class[1];
 				paramType[0] = Notification.class;
-
 				Method method;
 				try {
 					method = target.getClass().getMethod(methodName, paramType);

@@ -13,6 +13,7 @@ import java.util.TimerTask;
 
 import org.xmlpull.v1.XmlPullParserException;
 
+// import android.app.Activity;
 import android.app.Activity;
 import android.content.Intent;
 import android.content.pm.ApplicationInfo;

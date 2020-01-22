@@ -26,7 +26,6 @@ public class FragmentMaster extends AbstractMaster {
     public void doDisplay() {
         //fragment = getContextInstanceFromId(this.getContext().getId());
         if(fragment == null) {
-
             String type = getContext().getType();
             try {
                 Class clzz = Class.forName(type);

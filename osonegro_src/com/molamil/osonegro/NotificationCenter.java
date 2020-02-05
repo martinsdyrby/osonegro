@@ -81,7 +81,7 @@ public class NotificationCenter {
 	}
 	
 	public void postNotification(Notification note) {
-		Log.d("RE/ ","NotificationCenter Notification: " + note);
+		// Log.d("RE/ ","NotificationCenter Notification: " + note);
 		String type = note.getType();
 		Log.d("NOTIFICATION",":: postNotification: " + type);
 		ArrayList<NotificationHandler> obs = _observers.get(type);

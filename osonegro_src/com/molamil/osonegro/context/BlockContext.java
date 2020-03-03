@@ -9,7 +9,8 @@ import com.molamil.osonegro.master.ViewMaster;
 
 public class BlockContext implements ViewableContext {
 
-	
+	//
+	//
 	private String id;
 	private String type;
 	private Map<String,?> props;
@@ -72,6 +73,6 @@ public class BlockContext implements ViewableContext {
 	public void setMaster(ViewMaster master) {
 		this.master = master;
 	}
-
+	//
 
 }
